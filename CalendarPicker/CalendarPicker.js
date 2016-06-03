@@ -228,7 +228,7 @@ var HeaderControls = React.createClass({
     } else {
       this.setState({ selectedMonth: next });
     }
-    this.props.onMonthChange(this.state.selectedMonth);
+    this.props.onMonthChange(next);
   },
 
   getPrevious() {
@@ -239,7 +239,7 @@ var HeaderControls = React.createClass({
     } else {
       this.setState({ selectedMonth: prev });
     }
-    this.props.onMonthChange(this.state.selectedMonth);
+    this.props.onMonthChange(prev);
   },
 
   render() {
@@ -270,7 +270,7 @@ var CalendarPicker = React.createClass({
   propTypes: {
     selectedDate: React.PropTypes.instanceOf(Date).isRequired,
     onDateChange: React.PropTypes.func,
-    screenWidth: React.PropTypes.number.isRequired,
+    screenWidth: React.PropTypes.number,
     selectedBackgroundColor: React.PropTypes.string,
     styleSelectedDayText: Text.propTypes.style,
     startFromMonday: React.PropTypes.bool,
@@ -308,21 +308,18 @@ var CalendarPicker = React.createClass({
   },
 
   onMonthChange(month) {
-    this.setState({month: month});
-    this.onDateChange(this.props.dontChangeDateOnCalendarMovement);
+    this.setState({month: month}, () => this.onDateChange(this.props.dontChangeDateOnCalendarMovement));
   },
 
   getNextYear(){
-    this.setState({year: this.state.year + 1});
-    this.onDateChange(this.props.dontChangeDateOnCalendarMovement);
+    this.setState({year: this.state.year + 1}, () => this.onDateChange(this.props.dontChangeDateOnCalendarMovement));
   },
 
   getPrevYear() {
-    this.setState({year: this.state.year - 1});
-    this.onDateChange(this.props.dontChangeDateOnCalendarMovement);
+    this.setState({year: this.state.year - 1}, () => this.onDateChange(this.props.dontChangeDateOnCalendarMovement));
   },
 
-  onDateChange(changeDate=false) {
+  onDateChange(silent=false) {
     var {
       day,
       month,
@@ -330,10 +327,11 @@ var CalendarPicker = React.createClass({
     } = this.state,
       date = new Date(year, month, day);
 
-    if(changeDate) {
-      this.setState({date: date});
-      this.props.onDateChange(date);
+    if(silent) {
+      return;
     }
+    this.setState({date: date});
+    this.props.onDateChange(date);
   },
 
   simulateDateClick(day){
