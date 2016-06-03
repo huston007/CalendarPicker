@@ -304,7 +304,7 @@ var CalendarPicker = React.createClass({
   },
 
   onDayChange(day) {
-    this.setState({day: day.day}, () => {this.onDateChange();});
+    this.setState({day: day.day}, () => {this.onDateChange(this.props.dontChangeDateOnCalendarMovement);});
   },
 
   onMonthChange(month) {
