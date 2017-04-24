@@ -6,7 +6,7 @@
  */
 'use strict';
 
-import React from 'react';
+import React, {Component} from 'react';
 import {
   Dimensions,
   StyleSheet,
@@ -30,8 +30,8 @@ const IPHONE6_WIDTH = 375;
 var initialScale = Dimensions.get('window').width / IPHONE6_WIDTH ;
 var styles = StyleSheet.create(makeStyles(initialScale));
 
-var Day = React.createClass({
-  propTypes: {
+class Day extends Component {
+  static propTypes = {
     onDayChange: React.PropTypes.func,
     selected: React.PropTypes.bool,
     day: React.PropTypes.oneOfType([
@@ -42,19 +42,19 @@ var Day = React.createClass({
     startFromMonday: React.PropTypes.bool,
     selectedDayColor: React.PropTypes.string,
     selectedDayTextColor: React.PropTypes.string
-  },
-  getDefaultProps () {
-    return {
-      onDayChange () {}
-    };
-  },
+  };
 
-  getInitialState () {
-    this.DAY_WIDTH = (this.props.screenWidth - 16)/7;
-    this.SELECTED_DAY_WIDTH = (this.props.screenWidth - 16)/7 - 10;
+  static defaultProps = {
+    onDayChange () {}
+  };
+
+  constructor(props) {
+    super(props);
+    this.DAY_WIDTH = (props.screenWidth - 16)/7;
+    this.SELECTED_DAY_WIDTH = (props.screenWidth - 16)/7 - 10;
     this.BORDER_RADIUS = this.SELECTED_DAY_WIDTH/2;
-    return null;
-  },
+    this.state = null;
+  }
 
   render() {
     if (this.props.selected) {
@@ -87,28 +87,27 @@ var Day = React.createClass({
       );
     }
   }
-});
+}
 
-var Days = React.createClass({
-  propTypes: {
+class Days extends Component {
+  static propTypes = {
     date: React.PropTypes.instanceOf(Date).isRequired,
     month: React.PropTypes.number.isRequired,
     year: React.PropTypes.number.isRequired,
     onDayChange: React.PropTypes.func.isRequired,
     selectedDayColor: React.PropTypes.string,
     selectedDayTextColor: React.PropTypes.string
-  },
-  getInitialState() {
-    return {
-      selectedStates: []
-    };
-  },
+  };
+
+  state = {
+    selectedStates: []
+  };
 
   componentDidMount() {
     this.updateSelectedStates(this.props.date.getDate());
-  },
+  }
 
-  updateSelectedStates(day) {
+  updateSelectedStates = (day) => {
     var selectedStates = [],
       daysInMonth = getDaysInMonth(this.props.month, this.props.year),
       i;
@@ -125,18 +124,18 @@ var Days = React.createClass({
       selectedStates: selectedStates
     });
 
-  },
+  };
 
-  onPressDay(day) {
+  onPressDay = (day) => {
     this.updateSelectedStates(day);
     this.props.onDayChange({day: day});
-  },
+  };
 
   // Not going to touch this one - I'd look at whether there is a more functional
   // way you can do this using something like `range`, `map`, `partition` and such
   // (see underscore.js), or just break it up into steps: first generate the array for
   // data, then map that into the components
-  getCalendarDays() {
+  getCalendarDays = () => {
     var columns,
       matrix = [],
       i,
@@ -178,22 +177,24 @@ var Days = React.createClass({
     }
 
     return matrix;
-  },
+  };
 
   render() {
     return <View style={styles.daysWrapper}>{ this.getCalendarDays() }</View>;
   }
+}
 
-});
-
-var WeekDaysLabels = React.createClass({
-  propTypes: {
+class WeekDaysLabels extends Component {
+  static propTypes = {
     screenWidth: React.PropTypes.number
-  },
-  getInitialState() {
-    this.DAY_WIDTH = (this.props.screenWidth - 16)/7;
-    return null;
-  },
+  };
+
+  constructor(props) {
+    super(props);
+    this.DAY_WIDTH = (props.screenWidth - 16)/7;
+    this.state = null;
+  }
+
   render() {
     return (
       <View style={styles.dayLabelsWrapper}>
@@ -201,26 +202,25 @@ var WeekDaysLabels = React.createClass({
       </View>
     );
   }
-});
+}
 
-var HeaderControls = React.createClass({
-  propTypes: {
+class HeaderControls extends Component {
+  static propTypes = {
     month: React.PropTypes.number.isRequired,
     getNextYear: React.PropTypes.func.isRequired,
     getPrevYear: React.PropTypes.func.isRequired,
     onMonthChange: React.PropTypes.func.isRequired
-  },
-  getInitialState() {
-    return {
-      selectedMonth: this.props.month
-    };
-  },
+  };
+
+  state = {
+    selectedMonth: this.props.month
+  };
 
   // Logic seems a bit awkawardly split up between here and the CalendarPicker
   // component, eg: getNextYear is actually modifying the state of the parent,
   // could just let header controls hold all of the logic and have CalendarPicker
   // `onChange` callback fire and update itself on each change
-  getNext() {
+  getNext = () => {
     var next = this.state.selectedMonth + 1;
     if (next > 11) {
       this.setState({ selectedMonth: 0 });
@@ -229,9 +229,9 @@ var HeaderControls = React.createClass({
       this.setState({ selectedMonth: next });
     }
     this.props.onMonthChange(next);
-  },
+  };
 
-  getPrevious() {
+  getPrevious = () => {
     var prev = this.state.selectedMonth - 1;
     if (prev < 0) {
       this.setState({ selectedMonth: 11 });
@@ -240,7 +240,7 @@ var HeaderControls = React.createClass({
       this.setState({ selectedMonth: prev });
     }
     this.props.onMonthChange(prev);
-  },
+  };
 
   render() {
     return (
@@ -264,10 +264,10 @@ var HeaderControls = React.createClass({
       </View>
     );
   }
-});
+}
 
-var CalendarPicker = React.createClass({
-  propTypes: {
+class CalendarPicker extends Component {
+  static propTypes = {
     selectedDate: React.PropTypes.instanceOf(Date).isRequired,
     onDateChange: React.PropTypes.func,
     screenWidth: React.PropTypes.number,
@@ -283,43 +283,45 @@ var CalendarPicker = React.createClass({
     scaleFactor: React.PropTypes.number,
     overrideStyles: React.PropTypes.object,
     dontChangeDateOnCalendarMovement: React.PropTypes.bool
-  },
-  getDefaultProps() {
-    return {
-      onDateChange () {},
-      dontChangeDateOnCalendarMovement: false
-    };
-  },
-  getInitialState() {
-    if (this.props.scaleFactor !== undefined || this.props.overrideStyles !== undefined) {
-      styles = StyleSheet.create(makeStyles(this.props.scaleFactor, this.props.overrideStyles));
+  };
+
+  static defaultProps = {
+    onDateChange () {},
+    dontChangeDateOnCalendarMovement: false
+  };
+
+  constructor(props) {
+    super(props);
+    if (props.scaleFactor !== undefined || props.overrideStyles !== undefined) {
+      styles = StyleSheet.create(makeStyles(props.scaleFactor, props.overrideStyles));
     }
-    return {
-      date: this.props.selectedDate,
-      day: this.props.selectedDate.getDate(),
-      month: this.props.selectedDate.getMonth(),
-      year: this.props.selectedDate.getFullYear(),
+
+    this.state = {
+      date: props.selectedDate,
+      day: props.selectedDate.getDate(),
+      month: props.selectedDate.getMonth(),
+      year: props.selectedDate.getFullYear(),
       selectedDay: []
     };
-  },
+  }
 
-  onDayChange(day) {
+  onDayChange = (day) => {
     this.setState({day: day.day}, () => {this.onDateChange(this.props.dontChangeDateOnCalendarMovement);});
-  },
+  };
 
-  onMonthChange(month) {
+  onMonthChange = (month) => {
     this.setState({month: month}, () => this.onDateChange(this.props.dontChangeDateOnCalendarMovement));
-  },
+  };
 
-  getNextYear(){
+  getNextYear = () => {
     this.setState({year: this.state.year + 1}, () => this.onDateChange(this.props.dontChangeDateOnCalendarMovement));
-  },
+  };
 
-  getPrevYear() {
+  getPrevYear = () => {
     this.setState({year: this.state.year - 1}, () => this.onDateChange(this.props.dontChangeDateOnCalendarMovement));
-  },
+  };
 
-  onDateChange(silent=false) {
+  onDateChange = (silent=false) => {
     var {
       day,
       month,
@@ -332,11 +334,11 @@ var CalendarPicker = React.createClass({
     }
     this.setState({date: date});
     this.props.onDateChange(date);
-  },
+  };
 
-  simulateDateClick(day){
+  simulateDateClick = (day) => {
     this.refs.days.onPressDay(day);
-  },
+  };
 
   render() {
     return (
@@ -370,6 +372,6 @@ var CalendarPicker = React.createClass({
       </View>
     );
   }
-});
+}
 
 module.exports = CalendarPicker;
