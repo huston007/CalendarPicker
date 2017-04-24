@@ -67,7 +67,7 @@ class Day extends Component {
               style={styles.dayButton}
               onPress={() => this.props.onDayChange(this.props.day) }>
               <Text style={[styles.dayLabel, selectedDayTextColorStyle]}>
-                {this.props.day}
+                {this.props.day.toString()}
               </Text>
             </TouchableOpacity>
           </View>
@@ -80,7 +80,7 @@ class Day extends Component {
             style={styles.dayButton}
             onPress={() => this.props.onDayChange(this.props.day) }>
             <Text style={styles.dayLabel}>
-              {this.props.day}
+              {this.props.day.toString()}
             </Text>
           </TouchableOpacity>
         </View>
